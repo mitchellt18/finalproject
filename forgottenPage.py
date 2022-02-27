@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
 from pymongo.collection import ReturnDocument
+import bcrypt
 
 #establish connection with db
 global client
@@ -43,8 +44,13 @@ def checkPass(resetPassGUI, pass1, pass2, userObject, username, mainMenu):
     elif ((not len(pass1.get()) >= 8) or (not any(p.isupper() for p in pass1.get())) or (not any(p.islower() for p in pass1.get())) or (not any(p.isdigit() for p in pass1.get())) or (not any(p in special_characters for p in pass1.get()))):
         messagebox.showwarning("Error", "Password Not Strong Enough!") #check if passwords is strong enough
     else:
+
+        #encrypt password
+        encodedPassword = pass1.get().encode('utf-8')
+        encPassword = bcrypt.hashpw(encodedPassword, bcrypt.gensalt(10))
+        
         records.find_one_and_update({'username': userObject['username']},
-                                    {'$set':{'password': pass1.get()} },
+                                    {'$set':{'password': encPassword} },
                                     return_document = ReturnDocument.AFTER)
         messagebox.showinfo("Success", "Password Reset Successfully! Now Logging In...") #tells user successfully registered
         mainMenu(resetPassGUI, False, username) #takes user to main menu logged in
@@ -82,12 +88,16 @@ def resetPass(securityQuestionGUI, userObject, username, mainMenu):
 
 
 def checkAns(securityQuestionGUI, ans, userObject, username, mainMenu):
+    checkSecurityAnswer = ans.get().encode('utf-8')
+    
     #check input is blank
     if(ans.get() == ""):
         messagebox.showwarning("Error", "Please Enter Security Answer!")
+        
     #check if inputted answer matches
-    elif (userObject['securityAnswer'] != ans.get()):
+    elif (not bcrypt.checkpw(checkSecurityAnswer, userObject['securityAnswer'])):
         messagebox.showwarning("Error", "Security Answer Not Correct, Try Again") #if answer doesn't match
+        
     else:
         resetPass(securityQuestionGUI, userObject, username, mainMenu) #proceed to reset pass
 

@@ -5,6 +5,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 import os
 from pymongo import MongoClient
+import bcrypt
 
 global loginGUI
 global username
@@ -22,6 +23,9 @@ def checkDetails(loginGUI, username, password):
     db = client.get_database('user_db')
     records = db.user_details
 
+    checkPassword = password.get().encode('utf-8') #encode inputted password as utf-8
+    userObject = records.find_one({'username': username.get()})
+
     if(username.get() == ""):
         messagebox.showwarning("Error", "Please Enter Username!")#if username left blank
         
@@ -30,10 +34,11 @@ def checkDetails(loginGUI, username, password):
     
     elif (not records.find_one({'username':username.get()})):
         messagebox.showwarning("Error", "User not found") #if username not found in db
-    
-    elif (not records.find_one({'username':username.get(), 'password': password.get()})):
+
+    #check inputted password is correct
+    elif (not bcrypt.checkpw(checkPassword, userObject['password'])):
         messagebox.showwarning("Error", "Please ensure password is correct") #if password doesn't match in db
-        
+
     else:
         mainMenu(loginGUI, False, username)#all details are correct and found, login successful
     

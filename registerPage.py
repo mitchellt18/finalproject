@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
+import bcrypt
 
 global registerGUI
 global username
@@ -80,13 +81,22 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
 
     #Once all checked, input into database
     else:
+
+        #encrypt password
+        encodedPassword = pass1.get().encode('utf-8')
+        encPassword = bcrypt.hashpw(encodedPassword, bcrypt.gensalt(10))
+
+        #encrypt Security Answer
+        encodedSecurityAnswer = securityAnswer.get().encode('utf-8')
+        encSecurityAnswer = bcrypt.hashpw(encodedSecurityAnswer, bcrypt.gensalt(10))
+        
         #create new user
         new_user = {
             'username' : username.get(),
-            'password': pass1.get(),
+            'password': encPassword,
             'salary': salary.get(),
             'securityQuestion': securityQuestion.get(),
-            'securityAnswer': securityAnswer.get()
+            'securityAnswer': encSecurityAnswer
             }
         records.insert_one(new_user) #inputs new user into db
         messagebox.showinfo("Success", "Registered Successfully!") #tells user successfully registered

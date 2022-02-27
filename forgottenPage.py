@@ -3,6 +3,7 @@ from tkinter import messagebox
 from pymongo import MongoClient
 from pymongo.collection import ReturnDocument
 import bcrypt
+import re
 
 #establish connection with db
 global client
@@ -50,7 +51,11 @@ def checkPass(resetPassGUI, pass1, pass2, userObject, username, mainMenu):
         encPassword = bcrypt.hashpw(encodedPassword, bcrypt.gensalt(10))
         
         records.find_one_and_update({'username': userObject['username']},
-                                    {'$set':{'password': encPassword} },
+                                    {'$set':{
+                                        'password': encPassword,
+                                        'lock': False
+                                        }
+                                     },
                                     return_document = ReturnDocument.AFTER)
         messagebox.showinfo("Success", "Password Reset Successfully! Now Logging In...") #tells user successfully registered
         mainMenu(resetPassGUI, False, username) #takes user to main menu logged in
@@ -123,7 +128,7 @@ def checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu):
 
     #security question answer input
     ans = StringVar()
-    Entry(securityQuestionGUI, textvariable = ans, width = 30, bg='white', fg='black').pack()
+    Entry(securityQuestionGUI, textvariable = ans, width = 30, show = '*', bg='white', fg='black').pack()
     Label(securityQuestionGUI, text="Please Note: Security Answers ARE Case Sensitive!", bg="#C0392B", wraplengt=400).pack()
 
     #proceed button
@@ -136,11 +141,11 @@ def checkDetails(forgottenGUI, username, mainMenu):
     #check username actually exists in db
     if(username.get() == ""):
         messagebox.showwarning("Error", "Please Enter Username!")
-    elif (not records.find_one({'username':username.get()})):
+    elif (not records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})):
         messagebox.showwarning("Error", "User not found") #if username not found in db
     else:
         #retrieve user from db as an object
-        userObject = records.find_one({'username': username.get()})
+        userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})
         checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu)
 
 #window where user enters username

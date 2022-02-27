@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
 import bcrypt
+import re
 
 global registerGUI
 global username
@@ -42,7 +43,7 @@ def passRequirements(screen):
 def registerToDB():
     print("Register to DB Here")
 
-def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, mainMenu):
+def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, secAns2, mainMenu):
     #continue checking by ensuring username doesn't exist (connection to db) and passwords are strong
     def checkFloat(salary):
         try:
@@ -58,7 +59,7 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
     if(username.get() == ""):
         messagebox.showwarning("Error", "Please Enter Username!") #check if username is blank
 
-    elif (records.find_one({'username':username.get()})):
+    elif (records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})):
         messagebox.showwarning("Error", "Username already exists") #if username exists in db
 
     #check password
@@ -76,8 +77,10 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
         messagebox.showwarning("Error", "Ensure Salary ONLY Contains Integer or Float Values!") #check if salary is not float
 
     #check security questions
-    elif (securityQuestion.get() == "" or securityAnswer.get() == ""):
+    elif (securityQuestion.get() == "" or securityAnswer.get() == "" or secAns2.get() == ""):
         messagebox.showwarning("Error", "Please Ensure Security Details Are Filled!") #check if security details is not filled
+    elif (securityAnswer.get() != secAns2.get()):
+        messagebox.showwarning("Error", "Please Ensure Security Answers Match!") #check if security details is not filled
 
     #Once all checked, input into database
     else:
@@ -96,7 +99,8 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
             'password': encPassword,
             'salary': salary.get(),
             'securityQuestion': securityQuestion.get(),
-            'securityAnswer': encSecurityAnswer
+            'securityAnswer': encSecurityAnswer,
+            'lock': False
             }
         records.insert_one(new_user) #inputs new user into db
         messagebox.showinfo("Success", "Registered Successfully!") #tells user successfully registered
@@ -145,14 +149,16 @@ def registerPage(screen, mainMenu):
     Label(registerGUI, text="Please input security question:", bg="#C0392B", wraplengt=400).pack()
     Entry(registerGUI, textvariable = securityQuestion, width = 30, bg='white', fg='black').pack()
 
-
     #security answer
     securityAnswer = StringVar()
     Label(registerGUI, text="Please input a security answer:", bg="#C0392B", wraplengt=400).pack()
-    Entry(registerGUI, textvariable = securityAnswer, width = 30, bg='white', fg='black').pack()
+    Entry(registerGUI, textvariable = securityAnswer, width = 30, show='*', bg='white', fg='black').pack()
+    securityAnswer2 = StringVar()
+    Label(registerGUI, text="Please re-input security question:", bg="#C0392B", wraplengt=400).pack()
+    Entry(registerGUI, textvariable = securityAnswer2, width = 30, show='*', bg='white', fg='black').pack()
 
     registerButton = Button(registerGUI, text='Register', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, mainMenu)).pack()
+                            command=lambda: checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, securityAnswer2, mainMenu)).pack()
 
     #backButton = Button(registerGUI, text='Back to Login', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
     #                        command=mainScreen()).pack()

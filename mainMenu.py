@@ -1,5 +1,56 @@
 from tkinter import *
+from tkinter import messagebox
+from settings import *
+import bcrypt
+import re
 
+#Verify Password Function
+def verify(screen, offlineMode, username):
+    if (offlineMode):
+        settings(screen, offlineMode, username)
+    else:
+        def checkDetails(screen, username, password, offlineMode):
+            #establish connection with the database
+            client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+            db = client.get_database('user_db')
+            records = db.user_details
+
+            checkPassword = password.get().encode('utf-8') #encode inputted password as utf-8
+            userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})
+
+            if(password.get() == ""):
+                messagebox.showwarning("Error", "Please Enter Password!")#if password left blank
+
+            #check inputted password is correct
+            elif (not bcrypt.checkpw(checkPassword, userObject['password'])):
+                messagebox.showwarning("Error", "Please ensure password is correct") #if password doesn't match in db
+
+            else:
+                screen.withdraw()
+                settings(screen, offlineMode, username)
+                
+        
+        #ask for password re-entry
+        global verifyPass
+        verifyPass = Toplevel(screen)
+        verifyPass.title("Verify Password")
+        verifyPass.geometry("428x100")
+        verifyPass.configure(bg="#C0392B")
+
+        #verify title
+        verifyTitle = Label(verifyPass, text="Please Re-enter Password", bg="#C0392B", wraplengt=400)
+        verifyTitle.config(font=('Courier',25))
+        verifyTitle.pack(side=TOP, anchor=NW)
+
+        #password
+        password = StringVar()
+        Entry(verifyPass, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
+
+        verifyButton = Button(verifyPass, text='Verify', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                            command=lambda: checkDetails(verifyPass, username, password, offlineMode)).pack()
+        
+
+#Main Menu
 def mainMenu(screen, offlineMode, username):
     global mainMenuGUI
 
@@ -16,7 +67,8 @@ def mainMenu(screen, offlineMode, username):
     mainmenuTitle.pack(side=TOP, anchor=NW)
 
     #settings button
-    settingsButton = Button(mainMenuGUI, text="Settings", bg="#C0392B", highlightbackground="#C0392B", fg = "white")
+    settingsButton = Button(mainMenuGUI, text="Settings", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                            command=lambda: verify(mainMenuGUI, offlineMode, username))
     settingsButton.pack(side=TOP, anchor=NE)
 
     #Option Label

@@ -1,6 +1,9 @@
+#import py files
 from mainMenu import *
 from registerPage import *
 from forgottenPage import *
+
+#import required modules
 from tkinter import *
 from PIL import ImageTk, Image
 import os

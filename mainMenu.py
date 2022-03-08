@@ -1,8 +1,13 @@
+#import required modules
 from tkinter import *
 from tkinter import messagebox
-from settings import *
 import bcrypt
 import re
+
+#import py files
+from settings import *
+from monthlyBills import *
+from disposibleIncome import *
 
 #Verify Password Function
 def verify(screen, offlineMode, username):
@@ -76,11 +81,13 @@ def mainMenu(screen, offlineMode, username):
     mainmenuLabel.pack()
 
     #option1 button
-    option1Button = Button(mainMenuGUI, text="Monthly Bills Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white")
+    option1Button = Button(mainMenuGUI, text="Monthly Bills Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                            command=lambda: monthlyBills(mainMenuGUI, offlineMode, username))
     option1Button.pack()
 
     #option2 button
-    option2Button = Button(mainMenuGUI, text="Disposable Income Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white")
+    option2Button = Button(mainMenuGUI, text="Disposible Income Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                           command = lambda: disposibleIncome(mainMenuGUI, offlineMode, username))
     option2Button.pack()
 
     #option3 button
@@ -91,7 +98,7 @@ def mainMenu(screen, offlineMode, username):
     option4Button = Button(mainMenuGUI, text="Payment Reminders", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white")
     option4Button.pack()
 
-    if offlineMode:
-        userLabel = Label(mainMenuGUI, text="Offline Mode", bg="#C0392B").pack()
+    if (offlineMode):        
+        userLabel = Label(mainMenuGUI, text="Offline Mode. Using Local Database.", bg="#C0392B").pack()
     else:
         userLabel = Label(mainMenuGUI, text="Currently Logged In: " + username.get(), bg="#C0392B").pack()

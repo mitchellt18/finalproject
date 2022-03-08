@@ -1,10 +1,13 @@
+#import required modules
 from tkinter import *
 from tkinter import messagebox
+import re
+
+#import py files
 from changeSalary import *
 from changePassword import *
 from changeQuestion import *
 from changeAnswer import *
-import re
 
 #Delete User Function
 def delUser(settingsGUI, username):

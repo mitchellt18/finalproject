@@ -4,14 +4,6 @@ from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import re
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 #change salary functions
 def checkSalary(salaryGUI, username, salary):
     #checks if input is a float
@@ -28,6 +20,14 @@ def checkSalary(salaryGUI, username, salary):
     elif (checkFloat(salary.get()) == False):
         messagebox.showwarning("Error", "Ensure Salary ONLY Contains Integer or Float Values!") #check if salary is not float
     else:
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
+        
         #change salary
         userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})
         records.find_one_and_update({'username': userObject['username']},

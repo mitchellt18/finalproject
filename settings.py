@@ -15,6 +15,7 @@ def delUser(settingsGUI, username):
     if MessageBox == 'yes':
         MessageBox2 = messagebox.askquestion ('Delete User','Are you ABSOLUTELY sure? This action is irreversable!!!',icon = 'warning')
         if MessageBox2 == 'yes':
+            
             #establish connection with the database
             client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
             db = client.get_database('user_db')

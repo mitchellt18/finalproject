@@ -5,14 +5,6 @@ from pymongo.collection import ReturnDocument
 import bcrypt
 import re
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 def passRequirements(screen):
     passGUI = Toplevel(screen)
     passGUI.title("Password Requirements")
@@ -36,6 +28,11 @@ def passRequirements(screen):
 def checkPass(resetPassGUI, pass1, pass2, userObject, username, mainMenu):
     #var to store special characters for password
     special_characters = "!@#$%^&*()-+?_=,<>/"
+
+    #establish connection with db
+    client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.get_database('user_db')
+    records = db.user_details
     
     #check password
     if (pass1.get() != pass2.get()):
@@ -94,6 +91,11 @@ def resetPass(securityQuestionGUI, userObject, username, mainMenu):
 
 def checkAns(securityQuestionGUI, ans, userObject, username, mainMenu):
     checkSecurityAnswer = ans.get().encode('utf-8')
+
+    #establish connection with db
+    client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.get_database('user_db')
+    records = db.user_details
     
     #check input is blank
     if(ans.get() == ""):
@@ -113,6 +115,11 @@ def checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu):
     securityQuestionGUI.title("Security Question")
     securityQuestionGUI.geometry("428x720")
     securityQuestionGUI.configure(bg="#C0392B")
+
+    #establish connection with db
+    client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.get_database('user_db')
+    records = db.user_details
     
     #Title
     secTitle = Label(securityQuestionGUI, text="Forgotten User", bg="#C0392B", wraplengt=400)
@@ -138,6 +145,12 @@ def checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu):
     
 #checks if user exists
 def checkDetails(forgottenGUI, username, mainMenu):
+    
+    #establish connection with db
+    client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.get_database('user_db')
+    records = db.user_details
+
     #check username actually exists in db
     if(username.get() == ""):
         messagebox.showwarning("Error", "Please Enter Username!")

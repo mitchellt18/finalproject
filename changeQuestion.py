@@ -4,14 +4,6 @@ from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import re
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 #change security question functions
 
 def checkQuestion(securityGUI, username, securityQuestion):
@@ -20,6 +12,14 @@ def checkQuestion(securityGUI, username, securityQuestion):
         messagebox.showwarning("Error", "Please Ensure Security Details Are Filled!") #check if security details is not filled
         
     else:
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
+        
         #change security question
         userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})
         records.find_one_and_update({'username': userObject['username']},

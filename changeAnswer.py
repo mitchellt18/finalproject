@@ -5,14 +5,6 @@ from pymongo.collection import ReturnDocument
 import bcrypt
 import re
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 #change password functions
 def checkAnswer(securityGUI, username, answer, a2):
     
@@ -22,6 +14,13 @@ def checkAnswer(securityGUI, username, answer, a2):
     elif (answer.get() == "" or a2.get() == ""):
         messagebox.showwarning("Error", "Please Input Your Answers!") #check if passwords is blank
     else:
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
 
         #encrypt Security Answer
         encodedSecurityAnswer = answer.get().encode('utf-8')

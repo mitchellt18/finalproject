@@ -13,14 +13,6 @@ global salary
 global securityQuestion
 global securityAnswer
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 def passRequirements(screen):
     passGUI = Toplevel(screen)
     passGUI.title("Password Requirements")
@@ -39,10 +31,6 @@ def passRequirements(screen):
     Label(passGUI, text="- 1 Number", bg="#C0392B").pack()
     Label(passGUI, text="- 1 Special Character", bg="#C0392B").pack()
     Label(passGUI, text="Special Characters are: !@#$%^&*()-+?_=,<>/", bg="#C0392B").pack()
-    
-
-def registerToDB():
-    print("Register to DB Here")
 
 def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, secAns2, mainMenu):
     #continue checking by ensuring username doesn't exist (connection to db) and passwords are strong
@@ -55,6 +43,14 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
 
     #var to store special characters for password
     special_characters = "!@#$%^&*()-+?_=,<>/"
+
+    #establish connection with db
+    global client
+    global db
+    global records
+    client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+    db = client.get_database('user_db')
+    records = db.user_details
                  
     #check username
     if(username.get() == ""):

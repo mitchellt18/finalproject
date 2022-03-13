@@ -10,12 +10,21 @@ import os
 from pymongo import MongoClient
 import bcrypt
 import re
+import urllib.request
 
 global loginGUI
 global username
 global password
 global loginCounter
 loginCounter = 5
+
+#check internet connection
+def connect():
+    try:
+        urllib.request.urlopen('http://google.com') #attempt connection to google
+        return True
+    except:
+        return False
 
 #function check to ensure login details are correct
 def checkDetails(loginGUI, username, password):
@@ -62,41 +71,45 @@ def checkDetails(loginGUI, username, password):
 #first gui presented to the user when opening application
 def mainScreen():
     loginGUI = Tk() #create gui
-    loginGUI.geometry("428x720") #size of window
-    loginGUI.configure(bg="#C0392B") #window background colour
-    loginGUI.title("Welcome to Personal Finance Management") #window title
+    if (connect()):
+        loginGUI.geometry("428x720") #size of window
+        loginGUI.configure(bg="#C0392B") #window background colour
+        loginGUI.title("Welcome to Personal Finance Management") #window title
 
-    #titles & labels
-    welcomeTitle = Label(loginGUI, text="Welcome to Personal Finance Management", bg="#C0392B", wraplengt=400)
-    welcomeTitle.config(font=('Courier',25))
-    welcomeTitle.pack()
-    Label(loginGUI, text="Welcome Back!", bg="#C0392B").pack()
-    Label(loginGUI, text="Please enter your Username and Password Below:", bg="#C0392B", wraplengt=400).pack()
+        #titles & labels
+        welcomeTitle = Label(loginGUI, text="Welcome to Personal Finance Management", bg="#C0392B", wraplengt=400)
+        welcomeTitle.config(font=('Courier',25))
+        welcomeTitle.pack()
+        Label(loginGUI, text="Welcome Back!", bg="#C0392B").pack()
+        Label(loginGUI, text="Please enter your Username and Password Below:", bg="#C0392B", wraplengt=400).pack()
 
-    #pig image
-    pigImg = Image.open("./pig.png")
-    newPigImg = pigImg.resize((366, 399))
-    outputPigImg = ImageTk.PhotoImage(newPigImg)
-    Label(loginGUI, image = outputPigImg, bg="#C0392B").pack()
+        #pig image
+        pigImg = Image.open("./pig.png")
+        newPigImg = pigImg.resize((366, 399))
+        outputPigImg = ImageTk.PhotoImage(newPigImg)
+        Label(loginGUI, image = outputPigImg, bg="#C0392B").pack()
 
-    #username
-    username = StringVar()
-    Label(loginGUI, text="Username", bg="#C0392B", wraplengt=400).pack()
-    Entry(loginGUI, textvariable=username, width = 30, bg='white', fg='black').pack()
+        #username
+        username = StringVar()
+        Label(loginGUI, text="Username", bg="#C0392B", wraplengt=400).pack()
+        Entry(loginGUI, textvariable=username, width = 30, bg='white', fg='black').pack()
 
-    #password
-    password = StringVar()
-    Label(loginGUI, text="Password", bg="#C0392B", wraplengt=400).pack()
-    Entry(loginGUI, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
-    
-    #buttons
-    loginButton = Button(loginGUI, text="Login", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                         command=lambda: checkDetails(loginGUI, username, password)).pack()
-    forgottenButton = Button(loginGUI, text="Forgotten?", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                             command=lambda: forgottenPage(loginGUI, mainMenu)).pack()
-    registerButton = Button(loginGUI, text='Register', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: registerPage(loginGUI, mainMenu)).pack()
-    offlineButton = Button(loginGUI, text="Offline Mode", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                           command=lambda: mainMenu(loginGUI, True, 'offline')).pack()
-    loginGUI.mainloop()
+        #password
+        password = StringVar()
+        Label(loginGUI, text="Password", bg="#C0392B", wraplengt=400).pack()
+        Entry(loginGUI, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
+        
+        #buttons
+        loginButton = Button(loginGUI, text="Login", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                             command=lambda: checkDetails(loginGUI, username, password)).pack()
+        forgottenButton = Button(loginGUI, text="Forgotten?", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                                 command=lambda: forgottenPage(loginGUI, mainMenu)).pack()
+        registerButton = Button(loginGUI, text='Register', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                                command=lambda: registerPage(loginGUI, mainMenu)).pack()
+        offlineButton = Button(loginGUI, text="Offline Mode", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                               command=lambda: mainMenu(loginGUI, True, 'offline')).pack()
+        loginGUI.mainloop()
+    else:
+        messagebox.showwarning("Warning", "Your Computer Is Not Connected to the Internet. You will automatically be placed into Offline Mode")
+        mainMenu(loginGUI, True, 'offline')
 mainScreen()

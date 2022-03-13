@@ -5,14 +5,6 @@ from pymongo.collection import ReturnDocument
 import bcrypt
 import re
 
-#establish connection with db
-global client
-global db
-global records
-client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.get_database('user_db')
-records = db.user_details
-
 def passRequirements(screen):
     passGUI = Toplevel(screen)
     passGUI.title("Password Requirements")
@@ -45,6 +37,14 @@ def checkPassword(passwordGUI, username, password, p2):
     elif ((not len(password.get()) >= 8) or (not any(p.isupper() for p in password.get())) or (not any(p.islower() for p in password.get())) or (not any(p.isdigit() for p in password.get())) or (not any(p in special_characters for p in password.get()))):
         messagebox.showwarning("Error", "Password Not Strong Enough!") #check if passwords is strong enough
     else:
+
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
 
         #encrypt password
         encodedPassword = password.get().encode('utf-8')

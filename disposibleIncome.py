@@ -41,25 +41,28 @@ def plot(selection, screen, disposibleTracker_df, categories, offlineMode):
             plotGraph.plot(disposibleTracker_df.sum())
             
         else:
+            
             #loop for accessing all finances and converting into percentages
             y=0
             percentages = []
+            labelCategories = []
             for x in disposibleTracker_df[selection.get()]:
                 sum = disposibleTracker_df[selection.get()][y]
                 sum = (sum/disposibleTracker_df[selection.get()].sum())*100
-                percentages.append(sum)
+                if (sum != 0):
+                    #if the expenditure has a value it will be put into the visualisation
+                    percentages.append(sum)
+                    labelCategories.append(disposibleTracker_df[selection.get()].index[y])
                 y=y+1
 
-        
             #plotting graph
-            plotGraph.pie(percentages, labels=categories, autopct='%1.0f%%', shadow=True, startangle=70,)
+            plotGraph.pie(percentages, labels=labelCategories, autopct='%1.0f%%', shadow=True, startangle=70,)
         
         #creating tkinter canvas to display within gui
         canvas = FigureCanvasTkAgg(fig, master = plotGUI)
         canvas.draw()
         canvas.get_tk_widget().pack()
 
-        
         if (selection.get() == "Overview"):
             totalMonthly = disposibleTracker_df.sum()
             average = totalMonthly.sum()/len(totalMonthly)
@@ -74,6 +77,26 @@ def plot(selection, screen, disposibleTracker_df, categories, offlineMode):
                                 command=lambda: moreDetails(plotGUI, offlineMode, disposibleTracker_df, selection)).pack()
 
 def disposibleIncome(screen, offlineMode, username):
+    #gui
+    global disposibleGUI
+    disposibleGUI = Toplevel(screen)
+    disposibleGUI.title("Disposible Income Tracker")
+    disposibleGUI.geometry("420x175")
+    disposibleGUI.configure(bg="#C0392B")
+
+    #Title
+    disposibleTitle = Label(disposibleGUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
+    disposibleTitle.config(font=('Courier',25))
+    disposibleTitle.pack()
+
+    #dictionary for dates
+    monthDictionary = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}
+    #array for storing dates from dataset
+    dates = []
+    pos = len(dates)
+    empty=False #check if dataset is empty
+
+    #check if correct dataset exists online/offline
     #if user is in offline mode, open/create local dataset
     if (offlineMode):
         exists = os.path.isfile('expenditures.xlsx') #checks if required dataset exists
@@ -86,55 +109,67 @@ def disposibleIncome(screen, offlineMode, username):
             df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposible income
             writer.save()
 
-########################################################################################################################################################################################
-            #ONLINE MODE IN HASHES
-    #if user is not in offline mode, retrieve dataset from online db
-    else:
-        print("not offline")
-        #establish connection with the database to retrieve xls file and store it locally, every adjustment to xls, update db
-########################################################################################################################################################################################
-
-    global disposibleGUI
-    disposibleGUI = Toplevel(screen)
-    disposibleGUI.title("Disposible Income Tracker")
-    disposibleGUI.geometry("420x175")
-    disposibleGUI.configure(bg="#C0392B")
-
-    #dictionary for dates
-    monthDictionary = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}
-    #array for storing dates from dataset
-    dates = []
-    pos = len(dates)
-
-    #get data visualisations sorted for offline mode local files
-    if (offlineMode):
+        #put into dataframe for data visualisations
         disposibleTracker_df = pd.read_excel(
             './expenditures.xlsx',
             sheet_name='disposibleIncome',
             index_col=0,
             )
 
-########################################################################################################################################################################################
+        if (disposibleTracker_df.empty):
+            empty=True
+
+    #if user is not in offline mode, retrieve dataset from online db
     else:
-        print("Online Mode")
-        disposibleTracker_df = False
-########################################################################################################################################################################################
-    #if dataset is empty, alerts user to add data
-    if (disposibleTracker_df.empty):
-        disposibleTitle = Label(disposibleGUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
-        disposibleTitle.config(font=('Courier',25))
-        disposibleTitle.pack()
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
+        userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)}) #user
+        disposibleIncomeRecords = db.disposible_bills
+        objectID = userObject['objectIDDisposible'] #retrieve correct object id
+
+        #checks if dataset exists in db
+        if (objectID != "" and disposibleIncomeRecords.find_one({'_id': objectID[0]})):
+            
+            #import dataframe from db into new dataframe
+            disposibleBillsObject = disposibleIncomeRecords.find_one({'_id': objectID[0]},{'_id':0}) #import dataframe data from db
+            
+            disposibleTracker_df = pd.DataFrame([disposibleBillsObject]) #put dataframe data into a new dataframe
+            objectID.pop(0)
+
+             #if remaining objectIDs present
+            if (len(objectID) > 0):
+                for n in objectID:
+                    disposibleBillsObject = disposibleIncomeRecords.find_one({'_id': n},{'_id':0}) #import dataframe data from db
+                    newdisposibleTracker_df = pd.DataFrame([disposibleBillsObject]) #put dataframe data into a new dataframe
+                    disposibleTracker_df = pd.concat([disposibleTracker_df, newdisposibleTracker_df])
+                    
+            
+            disposibleTracker_df = disposibleTracker_df.set_index('Bill') #set index
+            disposibleTracker_df = disposibleTracker_df.astype(np.float64) #set dtype
+ 
+        else:
+            empty = True #empty dataset for user
+            
+    if (empty):
         Label(disposibleGUI, text="Your Dataset Is Empty, Please Add Expenditures", bg='#C0392B').pack()
-        
     else:
         #retrieves all data in dataset
         for fullDate in disposibleTracker_df.columns:
+            #if string needs to convert to datetime object
+            if (isinstance(fullDate, str)):
+                #convert to datetime
+                fullDate = datetime.strptime(fullDate, '%Y-%m-%d %H:%M:%S') #input yyyy-mm-dd hh:mm:ss
             month = monthDictionary[str(fullDate.month)] #gets month
             year = str(fullDate.year) #gets year
             dateAdjusted = month + " " + year
             dates.insert(pos, dateAdjusted)
             pos = pos + 1
-
+            
         #rename columns to relevant names
         disposibleTracker_df.columns= dates
 
@@ -146,11 +181,6 @@ def disposibleIncome(screen, offlineMode, username):
             y = y+1
 
         #gui
-
-        #Title
-        disposibleTitle = Label(disposibleGUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
-        disposibleTitle.config(font=('Courier',25))
-        disposibleTitle.pack()
 
         Label(disposibleGUI, text="Date:", bg='#C0392B').pack()
         if (len(dates) > 0):

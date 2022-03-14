@@ -41,17 +41,22 @@ def plot(selection, screen, monthlyTracker_df, categories, offlineMode):
             plotGraph.plot(monthlyTracker_df.sum())
             
         else:
+            
             #loop for accessing all finances and converting into percentages
             y=0
             percentages = []
+            labelCategories = []
             for x in monthlyTracker_df[selection.get()]:
                 sum = monthlyTracker_df[selection.get()][y]
                 sum = (sum/monthlyTracker_df[selection.get()].sum())*100
-                percentages.append(sum)
+                if (sum != 0):
+                    #if the expenditure has a value it will be put into the visualisation
+                    percentages.append(sum)
+                    labelCategories.append(monthlyTracker_df[selection.get()].index[y])
                 y=y+1
 
             #plotting graph
-            plotGraph.pie(percentages, labels=categories, autopct='%1.0f%%', shadow=True, startangle=70,)
+            plotGraph.pie(percentages, labels=labelCategories, autopct='%1.0f%%', shadow=True, startangle=70,)
             
         #creating tkinter canvas to display within gui
         canvas = FigureCanvasTkAgg(fig, master = plotGUI)
@@ -72,6 +77,26 @@ def plot(selection, screen, monthlyTracker_df, categories, offlineMode):
                                 command=lambda: moreDetails(plotGUI, offlineMode, monthlyTracker_df, selection)).pack()
 
 def monthlyBills(screen, offlineMode, username):
+    #set up gui
+    global monthlyGUI
+    monthlyGUI = Toplevel(screen)
+    monthlyGUI.title("Monthly Bills Tracker")
+    monthlyGUI.geometry("350x175")
+    monthlyGUI.configure(bg="#C0392B")
+
+    #Title
+    monthlyTitle = Label(monthlyGUI, text="Monthly Bills Tracker", bg="#C0392B", wraplengt=400)
+    monthlyTitle.config(font=('Courier',25))
+    monthlyTitle.pack()
+
+    #dictionary for dates
+    monthDictionary = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}
+    #array for storing dates from dataset
+    dates = []
+    pos = len(dates)
+    empty=False #checks if dataset is empty
+
+    #firstly check if correct dataset exists, in online or offline mode
     #if user is in offline mode, open/create local dataset
     if (offlineMode):
         exists = os.path.isfile('expenditures.xlsx') #checks if required dataset exists
@@ -84,81 +109,88 @@ def monthlyBills(screen, offlineMode, username):
             df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposible income
             writer.save()
 
-########################################################################################################################################################################################
-            #ONLINE MODE IN HASHES
-    #if user is not in offline mode, retrieve dataset from online db
-    else:
-        print("not offline")
-        #establish connection with the database to retrieve xls file and store it locally, every adjustment to xls, update db
-########################################################################################################################################################################################
-
-    global monthlyGUI
-    monthlyGUI = Toplevel(screen)
-    monthlyGUI.title("Monthly Bills Tracker")
-    monthlyGUI.geometry("350x175")
-    monthlyGUI.configure(bg="#C0392B")
-
-    #dictionary for dates
-    monthDictionary = {"1": "Jan", "2": "Feb", "3": "Mar", "4": "Apr", "5": "May", "6": "Jun", "7": "Jul", "8": "Aug", "9": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}
-    #array for storing dates from dataset
-    dates = []
-    pos = len(dates)
-
-    #get data visualisations sorted for offline mode local files
-    if (offlineMode):
+        #put into dataframe for data visualisations
         monthlyTracker_df = pd.read_excel(
-            './expenditures.xlsx',
-            sheet_name='monthlyBill',
-            index_col=0,
-            )
-
-########################################################################################################################################################################################
-    else:
-        print("Online Mode")
-        monthlyTracker_df = False
-########################################################################################################################################################################################
-    #if dataset is empty, alerts user to add data
-    if (monthlyTracker_df.empty):
-        monthlyTitle = Label(monthlyGUI, text="Monthly Bills Tracker", bg="#C0392B", wraplengt=400)
-        monthlyTitle.config(font=('Courier',25))
-        monthlyTitle.pack()
-        Label(monthlyGUI, text="Your Dataset Is Empty, Please Add Expenditures", bg='#C0392B').pack()
+        './expenditures.xlsx',
+        sheet_name='monthlyBill',
+        index_col=0,
+        )
         
+        #if dataset is empty, alerts user to add data
+        if (monthlyTracker_df.empty):
+            empty = True
+        
+    #if user is in online mode, retrieve dataset from online db
+    else:
+        #establish connection with db
+        global client
+        global db
+        global records
+        client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        db = client.get_database('user_db')
+        records = db.user_details
+        userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)}) #user
+        monthlyBillRecords = db.monthly_bills
+        objectID = userObject['objectIDMonthly'] #retrieve correct object id
+        
+        #checks if dataset exists in db
+        if (objectID != "" and monthlyBillRecords.find_one({'_id': objectID[0]})):
+            
+            #import dataframe from db into new dataframe
+            monthlyBillsObject = monthlyBillRecords.find_one({'_id': objectID[0]},{'_id':0}) #import dataframe data from db
+            
+            monthlyTracker_df = pd.DataFrame([monthlyBillsObject]) #put dataframe data into a new dataframe
+            objectID.pop(0)
+
+             #if remaining objectIDs present
+            if (len(objectID) > 0):
+                for n in objectID:
+                    monthlyBillsObject = monthlyBillRecords.find_one({'_id': n},{'_id':0}) #import dataframe data from db
+                    newmonthlyTracker_df = pd.DataFrame([monthlyBillsObject]) #put dataframe data into a new dataframe
+                    monthlyTracker_df = pd.concat([monthlyTracker_df, newmonthlyTracker_df])
+                    
+            
+            monthlyTracker_df = monthlyTracker_df.set_index('Bill') #set index
+            monthlyTracker_df = monthlyTracker_df.astype(np.float64) #set dtype
+ 
+        else:
+            empty = True #empty dataset for user
+            
+    if (empty):
+        Label(monthlyGUI, text="Your Dataset Is Empty, Please Add Expenditures", bg='#C0392B').pack()
     else:
         #retrieves all dates in dataset
-        for fullDate in monthlyTracker_df.columns:
-            month = monthDictionary[str(fullDate.month)] #gets month
-            year = str(fullDate.year) #gets year
-            dateAdjusted = month + " " + year
-            dates.insert(pos, dateAdjusted) #adds dates into array for easier viewing for user
-            pos = pos + 1
+            for fullDate in monthlyTracker_df.columns:
+                #if string need to convert to datetime object
+                if (isinstance(fullDate, str)):
+                    #convert to datetime
+                    fullDate = datetime.strptime(fullDate, '%Y-%m-%d %H:%M:%S') #input yyyy-mm-dd hh:mm:ss
+                    
+                month = monthDictionary[str(fullDate.month)] #gets month
+                year = str(fullDate.year) #gets year
+                dateAdjusted = month + " " + year
+                dates.insert(pos, dateAdjusted) #adds dates into array for easier viewing for user
+                pos = pos + 1
 
-        monthlyTracker_df.columns= dates #rename columns to relevant names
+            monthlyTracker_df.columns= dates #rename columns to relevant names
 
-        #loop for accessing indexes and inputting into array for future uses
-        categories=[]
-        y=0
-        for x in monthlyTracker_df.index:
-            categories.append(monthlyTracker_df.index[y])
-            y = y+1
+            #loop for accessing indexes and inputting into array for future uses
+            categories=[]
+            y=0
+            for x in monthlyTracker_df.index:
+                categories.append(monthlyTracker_df.index[y])
+                y = y+1
 
-        #gui
+            #gui
+            Label(monthlyGUI, text="Date:", bg='#C0392B').pack()
+            if (len(dates) > 0):
+                dates.insert(len(dates), "Overview")
+            #show dates in dropdown box
+            selection = StringVar()
+            w = OptionMenu(monthlyGUI, selection, *dates).pack()
 
-        #Title
-        monthlyTitle = Label(monthlyGUI, text="Monthly Bills Tracker", bg="#C0392B", wraplengt=400)
-        monthlyTitle.config(font=('Courier',25))
-        monthlyTitle.pack()
-
-        Label(monthlyGUI, text="Date:", bg='#C0392B').pack()
-        if (len(dates) > 0):
-            dates.insert(len(dates), "Overview")
-        #show dates in dropdown box
-        selection = StringVar()
-        w = OptionMenu(monthlyGUI, selection, *dates).pack()
-
-        selectButton = Button(monthlyGUI, text='Select Date', width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                command=lambda: plot(selection, monthlyGUI, monthlyTracker_df, categories, offlineMode)).pack(side=LEFT, anchor=W, expand=True)
-        
+            selectButton = Button(monthlyGUI, text='Select Date', width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                                    command=lambda: plot(selection, monthlyGUI, monthlyTracker_df, categories, offlineMode)).pack(side=LEFT, anchor=W, expand=True)
     #addExpenditure Button
     addExpenditureButton = Button(monthlyGUI, text="Add New Expenditure", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
                                   command=lambda: addExpenditure(monthlyGUI, offlineMode, username, expenditureType='m')).pack(side=RIGHT, anchor=E, expand=True)

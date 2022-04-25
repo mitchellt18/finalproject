@@ -99,7 +99,8 @@ def checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, 
             'securityAnswer': encSecurityAnswer,
             'lock': False,
             'objectIDMonthly': '',
-            'objectIDDisposible': ''
+            'objectIDDisposible': '',
+            'objectIDReminders': ''
             }
         records.insert_one(new_user) #inputs new user into db
         messagebox.showinfo("Success", "Registered Successfully!") #tells user successfully registered

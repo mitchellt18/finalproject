@@ -9,6 +9,8 @@ from settings import *
 from monthlyBills import *
 from disposibleIncome import *
 
+from paymentReminders import *
+
 #Verify Password Function
 def verify(screen, offlineMode, username):
     if (offlineMode):
@@ -95,7 +97,8 @@ def mainMenu(screen, offlineMode, username):
     option3Button.pack()
 
     #option4 button
-    option4Button = Button(mainMenuGUI, text="Payment Reminders", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white")
+    option4Button = Button(mainMenuGUI, text="Payment Reminders", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+                           command = lambda: paymentReminders(mainMenuGUI, offlineMode, username))
     option4Button.pack()
 
     if (offlineMode):        

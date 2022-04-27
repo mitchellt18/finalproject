@@ -1,8 +1,3 @@
-#import py files
-from mainMenu import *
-from registerPage import *
-from forgottenPage import *
-
 #import required modules
 from tkinter import *
 from PIL import ImageTk, Image
@@ -12,13 +7,21 @@ import bcrypt
 import re
 import urllib.request
 
+#import py files
+from mainMenu.mainMenu import *
+from Login.registerPage import *
+from Login.forgottenPage import *
+
+#global variables required
 global loginGUI
 global username
 global password
+
+#variable to count amount of attempted logins
 global loginCounter
 loginCounter = 5
 
-#check internet connection
+#verify internet connection
 def connect():
     try:
         urllib.request.urlopen('http://google.com') #attempt connection to google
@@ -26,34 +29,40 @@ def connect():
     except:
         return False
 
-#function check to ensure login details are correct
+#check login details
 def checkDetails(loginGUI, username, password):
     global loginCounter
-    #establish connection with the database
+    
+    #database code
     client = MongoClient("mongodb+srv://mitchellt22:aVJ3L0ilDrgKswZs@cluster0.n9xwq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-    db = client.get_database('user_db')
-    records = db.user_details
+    db = client.get_database('user_db') #retrieve correct database
+    records = db.user_details #retrieve correct collection
 
-    checkPassword = password.get().encode('utf-8') #encode inputted password as utf-8
-    #userObject = records.find_one({'username': username.get()})
+    #encode inputted password as utf-8
+    checkPassword = password.get().encode('utf-8')
 
+    #retrieve user from database
     userObject = records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})
 
+    #if username left blank - error
     if(username.get() == ""):
-        messagebox.showwarning("Error", "Please Enter Username!")#if username left blank
-        
-    elif (password.get() == ""):
-        messagebox.showwarning("Error", "Please Enter Password!") #if password left blank
-    
-    elif (not records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})):
-        messagebox.showwarning("Error", "User not found") #if username not found in db
+        messagebox.showwarning("Error", "Please Enter Username!")
 
-    #check if account is blocked
+    #if password left blank - error
+    elif (password.get() == ""):
+        messagebox.showwarning("Error", "Please Enter Password!")
+
+    #if username not found in db - error
+    elif (not records.find_one({'username': re.compile('^' + re.escape(username.get()) + '$', re.IGNORECASE)})):
+        messagebox.showwarning("Error", "User not found")
+
+    #if account blocked - error
     elif (userObject['lock'] == True):
-        messagebox.showwarning("Error", "Your account is blocked. To re-gain access, please reset the password") #message for blocked account
+        messagebox.showwarning("Error", "Your account is blocked. To re-gain access, please reset the password")
     
-    #check inputted password is correct
+    #if password incorrect - error
     elif (not bcrypt.checkpw(checkPassword, userObject['password'])):
+        #blocks account if loginCounter too low
         if (loginCounter <= 1):
             records.find_one_and_update({'username': userObject['username']},
                                     {'$set':{'lock': True}},
@@ -62,16 +71,20 @@ def checkDetails(loginGUI, username, password):
             messagebox.showwarning("Error", "Your Account, " + username.get() + ", has been blocked, please reset the password.") #acc blocked
             
         else:
+            #if password incorrect - reduce loginCounter by 1 and error
             loginCounter = loginCounter - 1
-            messagebox.showwarning("Error", "Please ensure password is correct, you have " + str(loginCounter) + " attempts remaining") #if password doesn't match in db
+            messagebox.showwarning("Error", "Please ensure password is correct, you have " + str(loginCounter) + " attempts remaining")
 
+    #login successful
     else:
-        mainMenu(loginGUI, False, username) #all details are correct and found, login successful
+        mainMenu(loginGUI, False, username) #mainMenu
     
-#first gui presented to the user when opening application
+#gui
 def mainScreen():
     loginGUI = Tk() #create gui
+    #if internet connection present
     if (connect()):
+        #gui settings
         loginGUI.geometry("428x730") #size of window
         loginGUI.configure(bg="#C0392B") #window background colour
         loginGUI.title("Welcome to Personal Finance Management") #window title
@@ -99,9 +112,7 @@ def mainScreen():
         Label(loginGUI, text="Password", bg="#C0392B", wraplengt=400).pack()
         Entry(loginGUI, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
         
-        #buttons
-        
-        #login
+        #login button
         loginImg = Image.open("./Buttons/Login/button_login.png").resize((100, 22))
         outputLogin = ImageTk.PhotoImage(loginImg)
         
@@ -110,7 +121,7 @@ def mainScreen():
         loginButton.image = outputLogin
         loginButton.pack()
 
-        #forgotten
+        #forgotten button
         forgottenImg = Image.open("./Buttons/Login/button_forgotten.png").resize((100, 22))
         outputForgotten = ImageTk.PhotoImage(forgottenImg)
         
@@ -119,7 +130,7 @@ def mainScreen():
         forgottenButton.image = outputForgotten
         forgottenButton.pack()
 
-        #register
+        #register button
         registerImg = Image.open("./Buttons/Login/button_register.png").resize((100, 22))
         outputRegister = ImageTk.PhotoImage(registerImg)
         
@@ -129,7 +140,7 @@ def mainScreen():
         registerButton.image = outputRegister
         registerButton.pack()
 
-        #offline
+        #offline button
         offlineImg = Image.open("./Buttons/Login/button_offline-mode.png").resize((100, 22))
         outputOffline = ImageTk.PhotoImage(offlineImg)
         
@@ -140,6 +151,7 @@ def mainScreen():
         offlineButton.pack()
         
         loginGUI.mainloop()
+    #if no internet detected - message and offlineMode
     else:
         messagebox.showwarning("Warning", "Your Computer Is Not Connected to the Internet. You will automatically be placed into Offline Mode")
         mainMenu(loginGUI, True, 'offline')

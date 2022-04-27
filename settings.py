@@ -2,6 +2,8 @@
 from tkinter import *
 from tkinter import messagebox
 import re
+import os
+from PIL import ImageTk, Image #required for images
 
 #import py files
 from changeSalary import *
@@ -33,6 +35,7 @@ def delUser(settingsGUI, username):
 
 #Settings
 def settings(screen, offlineMode, username):
+    from PIL import ImageTk, Image #required for images
     global settingsGUI
     settingsGUI = Toplevel(screen)
     settingsGUI.title("Settings")
@@ -54,27 +57,52 @@ def settings(screen, offlineMode, username):
         mainmenuLabel = Label(settingsGUI, text="Please choose an option below", bg="#C0392B")
         mainmenuLabel.pack()
 
-        #option1 button
-        option1Button = Button(settingsGUI, text="Change Salary", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+        #Option 1 Button
+        option1Img = Image.open("./Buttons/Settings/button_change-salary.png")
+        outputOption1 = ImageTk.PhotoImage(option1Img)
+        
+        option1Button = Button(settingsGUI, image = outputOption1,
                                command=lambda: changeSalary(settingsGUI, username))
+
+        option1Button.image = outputOption1
         option1Button.pack()
 
-        #option2 button
-        option2Button = Button(settingsGUI, text="Change Password", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+        #Option 2 Button
+        option2Img = Image.open("./Buttons/Settings/button_change-password.png")
+        outputOption2 = ImageTk.PhotoImage(option2Img)
+        
+        option2Button = Button(settingsGUI, image = outputOption2,
                                command=lambda: changePassword(settingsGUI, username))
+
+        option2Button.image = outputOption2
         option2Button.pack()
 
-        #option3 button
-        option3Button = Button(settingsGUI, text="Change Security Question", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+        #Option 3 Button
+        option3Img = Image.open("./Buttons/Settings/button_security-question.png")
+        outputOption3 = ImageTk.PhotoImage(option3Img)
+        
+        option3Button = Button(settingsGUI, image = outputOption3,
                                command=lambda: changeQuestion(settingsGUI, username))
+
+        option3Button.image = outputOption3
         option3Button.pack()
 
-        #option4 button
-        option4Button = Button(settingsGUI, text="Change Security Answer", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+        #Option 4 Button
+        option4Img = Image.open("./Buttons/Settings/button_security-answer.png")
+        outputOption4 = ImageTk.PhotoImage(option4Img)
+        
+        option4Button = Button(settingsGUI, image = outputOption4,
                                command=lambda: changeAnswer(settingsGUI, username))
-        option4Button.pack()
 
-        #option5 button
-        option5Button = Button(settingsGUI, text="Delete User", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
+        option4Button.image = outputOption4
+        option4Button.pack()
+        
+        #Option 5 Button
+        option5Img = Image.open("./Buttons/Settings/button_delete-user.png")
+        outputOption5 = ImageTk.PhotoImage(option5Img)
+        
+        option5Button = Button(settingsGUI, image = outputOption5,
                                command=lambda: delUser(settingsGUI, username))
+
+        option5Button.image = outputOption5
         option5Button.pack()

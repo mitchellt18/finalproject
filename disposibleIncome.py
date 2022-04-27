@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
+from PIL import ImageTk, Image
 import re
 import os
 from datetime import date, datetime
@@ -19,6 +20,7 @@ from moreDetails import *
 
 #plot graph
 def plot(selection, screen, disposibleTracker_df, categories, offlineMode):
+    from PIL import ImageTk, Image #required for images
     if (selection.get() == ""):
         messagebox.showwarning("Error", "Please Select a Month") #expenditure name missing
     else:
@@ -73,19 +75,26 @@ def plot(selection, screen, disposibleTracker_df, categories, offlineMode):
             Label(plotGUI, text="In " + selection.get() + " your total spendings was: £" + str(total), bg="#C0392B").pack()
 
         #more details button
-        moreDetailsButton = Button(plotGUI, text="More Details", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                command=lambda: moreDetails(plotGUI, offlineMode, disposibleTracker_df, selection)).pack()
+        moreDetailsImg = Image.open("./Buttons/Expenditures/button_more-details.png")
+        outputMoreDetails = ImageTk.PhotoImage(moreDetailsImg)
+        
+        moreDetailsButton = Button(plotGUI, image = outputMoreDetails,
+                               command=lambda: moreDetails(plotGUI, offlineMode, disposibleTracker_df, selection))
+
+        moreDetailsButton.image = outputMoreDetails
+        moreDetailsButton.pack()
 
 def disposibleIncome(screen, offlineMode, username):
+    from PIL import ImageTk, Image #required for images
     #gui
     global disposibleGUI
     disposibleGUI = Toplevel(screen)
-    disposibleGUI.title("Disposible Income Tracker")
-    disposibleGUI.geometry("420x175")
+    disposibleGUI.title("Disposable Income Tracker")
+    disposibleGUI.geometry("550x175")
     disposibleGUI.configure(bg="#C0392B")
 
     #Title
-    disposibleTitle = Label(disposibleGUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
+    disposibleTitle = Label(disposibleGUI, text="Disposable Income Tracker", bg="#C0392B", wraplengt=400)
     disposibleTitle.config(font=('Courier',25))
     disposibleTitle.pack()
 
@@ -106,7 +115,7 @@ def disposibleIncome(screen, offlineMode, username):
             df = pd.DataFrame({'Bill': [], date.today().strftime('01/%m/%Y'): []}) #sets titles in xlsx file
             writer = pd.ExcelWriter('expenditures.xlsx', engine='xlsxwriter') #creates expenditures dataset
             df.to_excel(writer, sheet_name='monthlyBill', index=False) #sheet for monthly bills
-            df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposible income
+            df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposable income
             writer.save()
 
         #put into dataframe for data visualisations
@@ -189,9 +198,23 @@ def disposibleIncome(screen, offlineMode, username):
         selection = StringVar()
         w = OptionMenu(disposibleGUI, selection, *dates).pack()
 
-        selectButton = Button(disposibleGUI, text='Select Date', width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                command=lambda: plot(selection, disposibleGUI, disposibleTracker_df, categories, offlineMode)).pack(side=LEFT, anchor=W, expand=True)
+        #select button
+        selectImg = Image.open("./Buttons/Expenditures/button_select-date.png")
+        outputSelect = ImageTk.PhotoImage(selectImg)
         
-    #addExpenditure Button
-    addExpenditureButton = Button(disposibleGUI, text="Add New Expenditure", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                  command=lambda: addExpenditure(disposibleGUI, offlineMode, username, expenditureType='d')).pack(side=RIGHT, anchor=E, expand=True)
+        selectButton = Button(disposibleGUI, image = outputSelect,
+                               command=lambda: plot(selection, disposibleGUI, disposibleTracker_df, categories, offlineMode))
+
+        selectButton.image = outputSelect
+        selectButton.pack(side=LEFT, anchor=W, expand=True)
+
+
+    #add expenditure button
+    addImg = Image.open("./Buttons/Expenditures/button_add-new-expenditure.png")
+    outputAdd = ImageTk.PhotoImage(addImg)
+    
+    addExpenditureButton = Button(disposibleGUI, image = outputAdd,
+                           command=lambda: addExpenditure(disposibleGUI, offlineMode, username, expenditureType='d'))
+
+    addExpenditureButton.image = outputAdd
+    addExpenditureButton.pack(side=RIGHT, anchor=E, expand=True)

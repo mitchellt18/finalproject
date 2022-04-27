@@ -4,23 +4,24 @@ from tkinter import messagebox
 from tkinter import ttk
 from pymongo import MongoClient
 #local dataset modules
-import re
+from PIL import ImageTk, Image
 import os
+import re
 from datetime import date, datetime
 
 import numpy as np
 import pandas as pd
 
-
 from deleteReminder import *
 from addReminder import *
 
 def paymentReminders(screen, offlineMode, username):
+    from PIL import ImageTk, Image #required for images
     #setup the GUI
     global remindersGUI
     remindersGUI = Toplevel(screen)
     remindersGUI.title("Payment Reminders")
-    remindersGUI.geometry("700x526")
+    remindersGUI.geometry("620x390")
     remindersGUI.configure(bg="#C0392B")
 
     #title of page
@@ -113,18 +114,29 @@ def paymentReminders(screen, offlineMode, username):
     #buttons for adding/deleting reminders
 
     #add reminder
-    addButton = Button(remindersGUI, text='Add Reminder', width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                       command = lambda: addReminder(remindersGUI, offlineMode, username)).pack(side=LEFT, anchor=W, expand=True)
+    addImg = Image.open("./Buttons/Reminders/button_add-reminder.png")
+    outputadd = ImageTk.PhotoImage(addImg)
+    
+    addButton = Button(remindersGUI, image = outputadd,
+                            command = lambda: addReminder(remindersGUI, offlineMode, username))
+
+    addButton.image = outputadd
+    addButton.pack(side=LEFT, anchor=W, expand=True)
+
     #delete reminder
-    delButton = Button(remindersGUI, text="Delete Reminder", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                       command=lambda: deleteReminder(remindersGUI, offlineMode, username, df)).pack(side=RIGHT, anchor=E, expand=True)
+    delImg = Image.open("./Buttons/Reminders/button_delete-reminder.png")
+    outputdel = ImageTk.PhotoImage(delImg)
+    
+    delButton = Button(remindersGUI, image = outputdel,
+                            command=lambda: deleteReminder(remindersGUI, offlineMode, username, df))
+
+    delButton.image = outputdel
+    delButton.pack(side=RIGHT, anchor=E, expand=True)
+
+    
 
     if (not df_2days.empty):
         urgentBills = df_2days['Bill'].values.tolist()
 
         messagebox.showwarning("ATTENTION", "You Have Bills Due in the Next 2 Days! Ensure To Pay For The Following Bills: " + ', '.join(urgentBills)) #alerts users of near bills
-        #print("ATTENTION")
-        #print("These Bills Are Due in Next 2 Days!!")
-        #print("ENSURE TO PAY THEM")
-        #print(df_2days['Bill'])
     

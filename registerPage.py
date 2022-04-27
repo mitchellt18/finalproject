@@ -1,6 +1,8 @@
 #import required modules
 from tkinter import *
 from tkinter import messagebox
+from PIL import ImageTk, Image
+import os
 from pymongo import MongoClient
 import bcrypt
 import re
@@ -135,8 +137,16 @@ def registerPage(screen, mainMenu):
     Label(registerGUI, text="Please Repeat Password", bg="#C0392B", wraplengt=400).pack()
     Entry(registerGUI, textvariable = pass2, width = 30, show="*", bg='white', fg='black').pack()
 
-    Button(registerGUI, text='Password Requirements', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: passRequirements(registerGUI)).pack()
+    #pass requirement button
+    reqImg = Image.open("./Buttons/Register/button_password-requirements.png")
+    outputReq = ImageTk.PhotoImage(reqImg)
+    
+    reqButton = Button(registerGUI, image = outputReq, 
+                        command=lambda: passRequirements(registerGUI))
+
+    reqButton.image = outputReq
+    reqButton.pack()
+
 
     #salary
     salary = StringVar() 
@@ -157,8 +167,12 @@ def registerPage(screen, mainMenu):
     Label(registerGUI, text="Please re-input security question:", bg="#C0392B", wraplengt=400).pack()
     Entry(registerGUI, textvariable = securityAnswer2, width = 30, show='*', bg='white', fg='black').pack()
 
-    registerButton = Button(registerGUI, text='Register', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, securityAnswer2, mainMenu)).pack()
+    #register button
+    registerImg = Image.open("./Buttons/Register/button_register.png")
+    outputRegister = ImageTk.PhotoImage(registerImg)
+    
+    registerButton = Button(registerGUI, image = outputRegister, 
+                    command=lambda: checkDetails(registerGUI, username, pass1, pass2, salary, securityQuestion, securityAnswer, securityAnswer2, mainMenu))
 
-    #backButton = Button(registerGUI, text='Back to Login', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-    #                        command=mainScreen()).pack()
+    registerButton.image = outputRegister
+    registerButton.pack()

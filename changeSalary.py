@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import re
+import os
+from PIL import ImageTk, Image #required for images
 
 #change salary functions
 def checkSalary(salaryGUI, username, salary):
@@ -37,6 +39,7 @@ def checkSalary(salaryGUI, username, salary):
         salaryGUI.withdraw()
 
 def changeSalary(screen, username):
+    from PIL import ImageTk, Image #required for images
     global salaryGUI
     salaryGUI = Toplevel(screen)
     salaryGUI.title("Change Salary - Settings")
@@ -53,6 +56,12 @@ def changeSalary(screen, username):
     Label(salaryGUI, text="Please enter your salary in GBP (£): ", bg="#C0392B", wraplengt=400).pack()
     Entry(salaryGUI, textvariable=salary, width = 30, bg='white', fg='black').pack()
 
-    #button
-    proceed = Button(salaryGUI, text="Proceed", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                         command=lambda: checkSalary(salaryGUI, username, salary)).pack()
+    #proceed button
+    proceedImg = Image.open("./Buttons/Settings/button_proceed.png").resize((100, 30))
+    outputProceed = ImageTk.PhotoImage(proceedImg)
+    
+    proceedButton = Button(salaryGUI, image = outputProceed,
+                           command=lambda: checkSalary(salaryGUI, username, salary))
+
+    proceedButton.image = outputProceed
+    proceedButton.pack()

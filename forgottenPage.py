@@ -1,9 +1,11 @@
 from tkinter import *
+from PIL import ImageTk, Image
+import os
+import re
 from tkinter import messagebox
 from pymongo import MongoClient
 from pymongo.collection import ReturnDocument
 import bcrypt
-import re
 
 def passRequirements(screen):
     passGUI = Toplevel(screen)
@@ -63,7 +65,7 @@ def resetPass(securityQuestionGUI, userObject, username, mainMenu):
     securityQuestionGUI.withdraw()
     resetPassGUI = Toplevel(securityQuestionGUI)
     resetPassGUI.title("Reset Password")
-    resetPassGUI.geometry("428x720")
+    resetPassGUI.geometry("428x220")
     resetPassGUI.configure(bg="#C0392B")
 
     #Title
@@ -82,11 +84,25 @@ def resetPass(securityQuestionGUI, userObject, username, mainMenu):
     Label(resetPassGUI, text="Please Repeat Password:", bg="#C0392B", wraplengt=400).pack()
     Entry(resetPassGUI, textvariable = pass2, width = 30, show="*", bg='white', fg='black').pack()
 
-    Button(resetPassGUI, text='Password Requirements', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: passRequirements(resetPassGUI)).pack()
+    #pass requirement button
+    reqImg = Image.open("./Buttons/forgottenPassword/button_password-requirements.png")
+    outputReq = ImageTk.PhotoImage(reqImg)
+    
+    reqButton = Button(resetPassGUI, image = outputReq, 
+                        command=lambda: passRequirements(resetPassGUI))
 
-    Button(resetPassGUI, text='Reset Password', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkPass(resetPassGUI, pass1, pass2, userObject, username, mainMenu)).pack()
+    reqButton.image = outputReq
+    reqButton.pack()
+
+    #pass reset button
+    resetImg = Image.open("./Buttons/forgottenPassword/button_reset-password.png")
+    outputReset = ImageTk.PhotoImage(resetImg)
+    
+    resetButton = Button(resetPassGUI, image = outputReset, 
+                        command=lambda: checkPass(resetPassGUI, pass1, pass2, userObject, username, mainMenu))
+
+    resetButton.image = outputReset
+    resetButton.pack()
 
 
 def checkAns(securityQuestionGUI, ans, userObject, username, mainMenu):
@@ -113,7 +129,7 @@ def checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu):
     forgottenGUI.withdraw()
     securityQuestionGUI = Toplevel(forgottenGUI)
     securityQuestionGUI.title("Security Question")
-    securityQuestionGUI.geometry("428x720")
+    securityQuestionGUI.geometry("428x200")
     securityQuestionGUI.configure(bg="#C0392B")
 
     #establish connection with db
@@ -139,8 +155,14 @@ def checkSecurityQuestion(forgottenGUI, userObject, username, mainMenu):
     Label(securityQuestionGUI, text="Please Note: Security Answers ARE Case Sensitive!", bg="#C0392B", wraplengt=400).pack()
 
     #proceed button
-    forgottenButton = Button(securityQuestionGUI, text='Continue', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkAns(securityQuestionGUI, ans, userObject, username, mainMenu)).pack()
+    forgottenImg = Image.open("./Buttons/forgottenPassword/button_continue.png")
+    outputForgotten = ImageTk.PhotoImage(forgottenImg)
+    
+    forgottenButton = Button(securityQuestionGUI, image = outputForgotten, 
+                        command=lambda: checkAns(securityQuestionGUI, ans, userObject, username, mainMenu))
+
+    forgottenButton.image = outputForgotten
+    forgottenButton.pack()
     
     
 #checks if user exists
@@ -169,7 +191,7 @@ def forgottenPage(screen, mainMenu):
 
     forgottenGUI = Toplevel(screen)
     forgottenGUI.title("Forgotten User")
-    forgottenGUI.geometry("428x720")
+    forgottenGUI.geometry("428x150")
     forgottenGUI.configure(bg="#C0392B")
 
     #forgotten Title
@@ -182,6 +204,13 @@ def forgottenPage(screen, mainMenu):
     Label(forgottenGUI, text="Username", bg="#C0392B", wraplengt=400).pack()
     Entry(forgottenGUI, textvariable = username, width = 30, bg='white', fg='black').pack()
 
-    forgottenButton = Button(forgottenGUI, text='Get Security Question', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkDetails(forgottenGUI, username, mainMenu)).pack()
+    #button
+    forgottenImg = Image.open("./Buttons/forgottenPassword/button_get-security-question.png")
+    outputForgotten = ImageTk.PhotoImage(forgottenImg)
+    
+    forgottenButton = Button(forgottenGUI, image = outputForgotten, 
+                        command=lambda: checkDetails(forgottenGUI, username, mainMenu))
+
+    forgottenButton.image = outputForgotten
+    forgottenButton.pack()
     

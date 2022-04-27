@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from pymongo.collection import ReturnDocument
 from tkcalendar import DateEntry
 #local dataset modules
+from PIL import ImageTk, Image #required for images
 import re
 import os
 from datetime import date, datetime
@@ -110,7 +111,7 @@ def addToDB(addGUI, offlineMode, username, billInput, dateEntry, reminderID):
         messagebox.showinfo("Success", "Successfully Added Reminder!") #tells user successfully added reminder
 
 def checkReminder(addGUI, offlineMode, username, billInput, dateEntry):
-
+    from PIL import ImageTk, Image #required for images
     #check if bill name is inputted
     if (billInput.get() == ""):
         messagebox.showwarning("Error", "Please Enter Bill Name")
@@ -148,7 +149,13 @@ def addReminder(screen, offlineMode, username):
     dateEntry.pack()
 
     #add reminder
-    addButton = Button(addGUI, text="Add", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                       command = lambda: checkReminder(addGUI, offlineMode, username, billInput, dateEntry)).pack()
+    addImg = Image.open("./Buttons/Reminders/button_add.png").resize((100, 30))
+    outputAdd = ImageTk.PhotoImage(addImg)
+    
+    addButton = Button(addGUI, image = outputAdd,
+                           command = lambda: checkReminder(addGUI, offlineMode, username, billInput, dateEntry))
+
+    addButton.image = outputAdd
+    addButton.pack()
 
     

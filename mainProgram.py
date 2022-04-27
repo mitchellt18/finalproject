@@ -72,7 +72,7 @@ def checkDetails(loginGUI, username, password):
 def mainScreen():
     loginGUI = Tk() #create gui
     if (connect()):
-        loginGUI.geometry("428x720") #size of window
+        loginGUI.geometry("428x730") #size of window
         loginGUI.configure(bg="#C0392B") #window background colour
         loginGUI.title("Welcome to Personal Finance Management") #window title
 
@@ -100,14 +100,45 @@ def mainScreen():
         Entry(loginGUI, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
         
         #buttons
-        loginButton = Button(loginGUI, text="Login", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                             command=lambda: checkDetails(loginGUI, username, password)).pack()
-        forgottenButton = Button(loginGUI, text="Forgotten?", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                 command=lambda: forgottenPage(loginGUI, mainMenu)).pack()
-        registerButton = Button(loginGUI, text='Register', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                command=lambda: registerPage(loginGUI, mainMenu)).pack()
-        offlineButton = Button(loginGUI, text="Offline Mode", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                               command=lambda: mainMenu(loginGUI, True, 'offline')).pack()
+        
+        #login
+        loginImg = Image.open("./Buttons/Login/button_login.png").resize((100, 22))
+        outputLogin = ImageTk.PhotoImage(loginImg)
+        
+        loginButton = Button(loginGUI, image = outputLogin, 
+                             command=lambda: checkDetails(loginGUI, username, password))
+        loginButton.image = outputLogin
+        loginButton.pack()
+
+        #forgotten
+        forgottenImg = Image.open("./Buttons/Login/button_forgotten.png").resize((100, 22))
+        outputForgotten = ImageTk.PhotoImage(forgottenImg)
+        
+        forgottenButton = Button(loginGUI, image = outputForgotten,
+                                 command=lambda: forgottenPage(loginGUI, mainMenu))
+        forgottenButton.image = outputForgotten
+        forgottenButton.pack()
+
+        #register
+        registerImg = Image.open("./Buttons/Login/button_register.png").resize((100, 22))
+        outputRegister = ImageTk.PhotoImage(registerImg)
+        
+        registerButton = Button(loginGUI, image = outputRegister,
+                                command=lambda: registerPage(loginGUI, mainMenu))
+
+        registerButton.image = outputRegister
+        registerButton.pack()
+
+        #offline
+        offlineImg = Image.open("./Buttons/Login/button_offline-mode.png").resize((100, 22))
+        outputOffline = ImageTk.PhotoImage(offlineImg)
+        
+        offlineButton = Button(loginGUI, image = outputOffline,
+                               command=lambda: mainMenu(loginGUI, True, 'offline'))
+
+        offlineButton.image = outputOffline
+        offlineButton.pack()
+        
         loginGUI.mainloop()
     else:
         messagebox.showwarning("Warning", "Your Computer Is Not Connected to the Internet. You will automatically be placed into Offline Mode")

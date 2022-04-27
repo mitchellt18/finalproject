@@ -1,8 +1,10 @@
 #import required modules
 from tkinter import *
 from tkinter import messagebox
-import bcrypt
+from PIL import ImageTk, Image
+import os
 import re
+import bcrypt
 
 #import py files
 from settings import *
@@ -41,7 +43,7 @@ def verify(screen, offlineMode, username):
         global verifyPass
         verifyPass = Toplevel(screen)
         verifyPass.title("Verify Password")
-        verifyPass.geometry("428x100")
+        verifyPass.geometry("428x110")
         verifyPass.configure(bg="#C0392B")
 
         #verify title
@@ -53,19 +55,27 @@ def verify(screen, offlineMode, username):
         password = StringVar()
         Entry(verifyPass, textvariable = password, width = 30, show="*", bg='white', fg='black').pack()
 
-        verifyButton = Button(verifyPass, text='Verify', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: checkDetails(verifyPass, username, password, offlineMode)).pack()
+        #verify button
+        verifyImg = Image.open("./Buttons/Settings/button_verify.png")
+        outputVerify = ImageTk.PhotoImage(verifyImg)
+        
+        verifyButton = Button(verifyPass, image = outputVerify,
+                                command=lambda: checkDetails(verifyPass, username, password, offlineMode))
+
+        verifyButton.image = outputVerify
+        verifyButton.pack()
         
 
 #Main Menu
 def mainMenu(screen, offlineMode, username):
+    from PIL import ImageTk, Image #import is here as is required when running function
     global mainMenuGUI
 
     screen.withdraw() #close previous window no longer required
 
     mainMenuGUI = Toplevel(screen)
     mainMenuGUI.title("Main Menu")
-    mainMenuGUI.geometry("428x526")
+    mainMenuGUI.geometry("428x550")
     mainMenuGUI.configure(bg="#C0392B")
 
     #Main Menu Title
@@ -74,32 +84,58 @@ def mainMenu(screen, offlineMode, username):
     mainmenuTitle.pack(side=TOP, anchor=NW)
 
     #settings button
-    settingsButton = Button(mainMenuGUI, text="Settings", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: verify(mainMenuGUI, offlineMode, username))
+    settingsImg = Image.open("./Buttons/mainMenu/button_settings.png").resize((90,22))
+    outputSettings = ImageTk.PhotoImage(settingsImg)
+    
+    settingsButton = Button(mainMenuGUI, image = outputSettings, 
+                    command=lambda: verify(mainMenuGUI, offlineMode, username))
+
+    settingsButton.image = outputSettings
     settingsButton.pack(side=TOP, anchor=NE)
 
     #Option Label
     mainmenuLabel = Label(mainMenuGUI, text="Please choose an option below", bg="#C0392B")
     mainmenuLabel.pack()
 
-    #option1 button
-    option1Button = Button(mainMenuGUI, text="Monthly Bills Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                            command=lambda: monthlyBills(mainMenuGUI, offlineMode, username))
-    option1Button.pack()
+    #monthly bill tracker button
+    opt1Img = Image.open("./Buttons/mainMenu/button_monthly-bills-tracker.png")
+    outputOpt1 = ImageTk.PhotoImage(opt1Img)
+    
+    opt1Button = Button(mainMenuGUI, image = outputOpt1, 
+                    command=lambda: monthlyBills(mainMenuGUI, offlineMode, username))
 
-    #option2 button
-    option2Button = Button(mainMenuGUI, text="Disposible Income Tracker", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                           command = lambda: disposibleIncome(mainMenuGUI, offlineMode, username))
-    option2Button.pack()
+    opt1Button.image = outputOpt1
+    opt1Button.pack()
 
-    #option3 button
-    option3Button = Button(mainMenuGUI, text="Financial Recommendations", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white")
-    option3Button.pack()
+    #disposable tracker button
+    opt2Img = Image.open("./Buttons/mainMenu/button_disposable-income-tracker.png")
+    outputOpt2 = ImageTk.PhotoImage(opt2Img)
+    
+    opt2Button = Button(mainMenuGUI, image = outputOpt2, 
+                    command = lambda: disposibleIncome(mainMenuGUI, offlineMode, username))
 
-    #option4 button
-    option4Button = Button(mainMenuGUI, text="Payment Reminders", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                           command = lambda: paymentReminders(mainMenuGUI, offlineMode, username))
-    option4Button.pack()
+    opt2Button.image = outputOpt2
+    opt2Button.pack()
+
+    #financial recommendations button
+    opt3Img = Image.open("./Buttons/mainMenu/button_financial-recommendations.png")
+    outputOpt3 = ImageTk.PhotoImage(opt3Img)
+    
+    opt3Button = Button(mainMenuGUI, image = outputOpt3) 
+                    #command=lambda: monthlyBills(mainMenuGUI, offlineMode, username))
+
+    opt3Button.image = outputOpt3
+    opt3Button.pack()
+
+    #payment reminder button
+    opt4Img = Image.open("./Buttons/mainMenu/button_payment-reminders.png")
+    outputOpt4 = ImageTk.PhotoImage(opt4Img)
+    
+    opt4Button = Button(mainMenuGUI, image = outputOpt4, 
+                    command = lambda: paymentReminders(mainMenuGUI, offlineMode, username))
+
+    opt4Button.image = outputOpt4
+    opt4Button.pack()
 
     if (offlineMode):        
         userLabel = Label(mainMenuGUI, text="Offline Mode. Using Local Database.", bg="#C0392B").pack()

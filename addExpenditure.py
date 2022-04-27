@@ -4,7 +4,9 @@ from tkinter import messagebox
 from tkcalendar import DateEntry
 from pymongo import MongoClient
 from pymongo.collection import ReturnDocument
+from PIL import ImageTk, Image
 import re
+import os
 from datetime import date, datetime
 #import datetime
 import pandas as pd
@@ -177,6 +179,7 @@ def checkDetails(screen, selected_option, expenditureName, expenditureCost, offl
   
 
 def selectedOption(screen, offlineMode, username, selected_option, expenditureType):
+    from PIL import ImageTk, Image #required for images
     if (selected_option == 'V'):
         messagebox.showwarning("Error", "Feature Not Yet Implemented. You can only add fixed bills for now.") #feature not yet implemented as required ai model implementation
     elif (selected_option == ''):
@@ -184,7 +187,7 @@ def selectedOption(screen, offlineMode, username, selected_option, expenditureTy
     else:
         global addExpenditure2GUI
         addExpenditure2GUI = Toplevel(screen)
-        addExpenditure2GUI.geometry("428x526")
+        addExpenditure2GUI.geometry("428x250")
         addExpenditure2GUI.configure(bg="#C0392B")
 
         if (expenditureType == 'm'):
@@ -194,9 +197,9 @@ def selectedOption(screen, offlineMode, username, selected_option, expenditureTy
             title.config(font=('Courier',25))
             title.pack(side=TOP, anchor=NW)
         else:
-            addExpenditure2GUI.title("Disposible Income Tracker")
+            addExpenditure2GUI.title("Disposable Income Tracker")
             #Title
-            title = Label(addExpenditure2GUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
+            title = Label(addExpenditure2GUI, text="Disposable Income Tracker", bg="#C0392B", wraplengt=400)
             title.config(font=('Courier',25))
             title.pack(side=TOP, anchor=NW)
 
@@ -213,11 +216,18 @@ def selectedOption(screen, offlineMode, username, selected_option, expenditureTy
         Label(addExpenditure2GUI, text="Cost of Expenditure", bg="#C0392B", wraplengt=400).pack()
         Entry(addExpenditure2GUI, textvariable=expenditureCost, width = 30, bg='white', fg='black').pack()
     
-        #addExpenditure Button
-        addExpenditureButton = Button(addExpenditure2GUI, text="Add", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                      command=lambda: checkDetails(addExpenditure2GUI, selected_option, expenditureName, expenditureCost, offlineMode, expenditureType, username)).pack()
+        #add Expenditure button
+        addImg = Image.open("./Buttons/Expenditures/button_add.png")
+        outputAdd = ImageTk.PhotoImage(addImg)
+        
+        addExpenditureButton = Button(addExpenditure2GUI, image = outputAdd,
+                               command=lambda: checkDetails(addExpenditure2GUI, selected_option, expenditureName, expenditureCost, offlineMode, expenditureType, username))
 
+        addExpenditureButton.image = outputAdd
+        addExpenditureButton.pack()
+        
 def addExpenditure(screen, offlineMode, username, expenditureType):
+    from PIL import ImageTk, Image #required for images
     global addExpenditureGUI
     addExpenditureGUI = Toplevel(screen)
     addExpenditureGUI.configure(bg="#C0392B")
@@ -244,25 +254,37 @@ def addExpenditure(screen, offlineMode, username, expenditureType):
             option = Radiobutton(addExpenditureGUI, text=o[0], value = o[1], variable = selected_option, bg="#C0392B")
             option.pack()
 
-        #addExpenditure Button
-        addExpenditureButton = Button(addExpenditureGUI, text="Continue", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                      command=lambda: selectedOption(screen, offlineMode, username, selected_option.get(), expenditureType)).pack()
+        #add expenditure button
+        addImg = Image.open("./Buttons/Expenditures/button_continue.png")
+        outputAdd = ImageTk.PhotoImage(addImg)
+        
+        addExpenditureButton = Button(addExpenditureGUI, image = outputAdd,
+                               command=lambda: selectedOption(screen, offlineMode, username, selected_option.get(), expenditureType))
+
+        addExpenditureButton.image = outputAdd
+        addExpenditureButton.pack()
     
     else:
-        addExpenditureGUI.title("Disposible Income Tracker")
+        addExpenditureGUI.title("Disposable Income Tracker")
         addExpenditureGUI.geometry("428x150")
         
         #Title
-        title = Label(addExpenditureGUI, text="Disposible Income Tracker", bg="#C0392B", wraplengt=400)
+        title = Label(addExpenditureGUI, text="Disposable Income Tracker", bg="#C0392B", wraplengt=400)
         title.config(font=('Courier',25))
         title.pack(side=TOP, anchor=NW)
 
         #Labels
         Label(addExpenditureGUI, text="Add Expenditure", bg="#C0392B").pack()
 
-        #addExpenditure Button
-        addExpenditureButton = Button(addExpenditureGUI, text="Continue", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                      command=lambda: selectedOption(screen, offlineMode, username, 'F', expenditureType)).pack()
+        #add expenditure button
+        addImg = Image.open("./Buttons/Expenditures/button_continue.png")
+        outputAdd = ImageTk.PhotoImage(addImg)
+        
+        addExpenditureButton = Button(addExpenditureGUI, image = outputAdd,
+                               command=lambda: selectedOption(screen, offlineMode, username, 'F', expenditureType))
+
+        addExpenditureButton.image = outputAdd
+        addExpenditureButton.pack()
 
     
     

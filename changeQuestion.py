@@ -3,6 +3,8 @@ from pymongo import MongoClient
 from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import re
+import os
+from PIL import ImageTk, Image #required for images
 
 #change security question functions
 
@@ -29,6 +31,7 @@ def checkQuestion(securityGUI, username, securityQuestion):
         securityGUI.withdraw()
 
 def changeQuestion(screen, username):
+    from PIL import ImageTk, Image #required for images
     global securityGUI
     securityGUI = Toplevel(screen)
     securityGUI.title("Change Security Question - Settings")
@@ -45,6 +48,12 @@ def changeQuestion(screen, username):
     Label(securityGUI, text="Please enter your new Security Question: ", bg="#C0392B", wraplengt=400).pack()
     Entry(securityGUI, textvariable=question, width = 30, bg='white', fg='black').pack()
 
-    #button
-    proceed = Button(securityGUI, text="Proceed", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                         command=lambda: checkQuestion(securityGUI, username, question)).pack()
+    #proceed button
+    proceedImg = Image.open("./Buttons/Settings/button_proceed.png").resize((100, 30))
+    outputProceed = ImageTk.PhotoImage(proceedImg)
+    
+    proceedButton = Button(securityGUI, image = outputProceed,
+                           command=lambda: checkQuestion(securityGUI, username, question))
+
+    proceedButton.image = outputProceed
+    proceedButton.pack()

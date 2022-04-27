@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
+from PIL import ImageTk, Image
 import re
 import os
 from datetime import date, datetime
@@ -19,6 +20,7 @@ from moreDetails import *
 
 #plot graph
 def plot(selection, screen, monthlyTracker_df, categories, offlineMode):
+    from PIL import ImageTk, Image #required for opening images
     if (selection.get() == ""):
         messagebox.showwarning("Error", "Please Select a Month") #expenditure name missing
     else:
@@ -71,17 +73,24 @@ def plot(selection, screen, monthlyTracker_df, categories, offlineMode):
         else:
             total = monthlyTracker_df[selection.get()].sum()
             Label(plotGUI, text="In " + selection.get() + " your total spendings was: £" + str(total), bg="#C0392B").pack()
-
+        
         #more details button
-        moreDetailsButton = Button(plotGUI, text="More Details", width = 20, height = 5, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                command=lambda: moreDetails(plotGUI, offlineMode, monthlyTracker_df, selection)).pack()
+        moreDetailsImg = Image.open("./Buttons/Expenditures/button_more-details.png")
+        outputMoreDetails = ImageTk.PhotoImage(moreDetailsImg)
+        
+        moreDetailsButton = Button(plotGUI, image = outputMoreDetails,
+                               command=lambda: moreDetails(plotGUI, offlineMode, monthlyTracker_df, selection))
+
+        moreDetailsButton.image = outputMoreDetails
+        moreDetailsButton.pack()
 
 def monthlyBills(screen, offlineMode, username):
+    from PIL import ImageTk, Image #required for opening images
     #set up gui
     global monthlyGUI
     monthlyGUI = Toplevel(screen)
     monthlyGUI.title("Monthly Bills Tracker")
-    monthlyGUI.geometry("350x175")
+    monthlyGUI.geometry("550x175")
     monthlyGUI.configure(bg="#C0392B")
 
     #Title
@@ -106,7 +115,7 @@ def monthlyBills(screen, offlineMode, username):
             df = pd.DataFrame({'Bill': [], date.today().strftime('01/%m/%Y'): []}) #sets titles in xlsx file
             writer = pd.ExcelWriter('expenditures.xlsx', engine='xlsxwriter') #creates expenditures dataset
             df.to_excel(writer, sheet_name='monthlyBill', index=False) #sheet for monthly bills
-            df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposible income
+            df.to_excel(writer, sheet_name='disposibleIncome', index=False) #sheet for disposable income
             writer.save()
 
         #put into dataframe for data visualisations
@@ -189,8 +198,23 @@ def monthlyBills(screen, offlineMode, username):
             selection = StringVar()
             w = OptionMenu(monthlyGUI, selection, *dates).pack()
 
-            selectButton = Button(monthlyGUI, text='Select Date', width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                    command=lambda: plot(selection, monthlyGUI, monthlyTracker_df, categories, offlineMode)).pack(side=LEFT, anchor=W, expand=True)
-    #addExpenditure Button
-    addExpenditureButton = Button(monthlyGUI, text="Add New Expenditure", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                                  command=lambda: addExpenditure(monthlyGUI, offlineMode, username, expenditureType='m')).pack(side=RIGHT, anchor=E, expand=True)
+            #select button
+            selectImg = Image.open("./Buttons/Expenditures/button_select-date.png")
+            outputSelect = ImageTk.PhotoImage(selectImg)
+            
+            selectButton = Button(monthlyGUI, image = outputSelect,
+                                   command=lambda: plot(selection, monthlyGUI, monthlyTracker_df, categories, offlineMode))
+
+            selectButton.image = outputSelect
+            selectButton.pack(side=LEFT, anchor=W, expand=True)
+
+
+    #add expenditure button
+    addImg = Image.open("./Buttons/Expenditures/button_add-new-expenditure.png")
+    outputAdd = ImageTk.PhotoImage(addImg)
+    
+    addExpenditureButton = Button(monthlyGUI, image = outputAdd,
+                           command=lambda: addExpenditure(monthlyGUI, offlineMode, username, expenditureType='m'))
+
+    addExpenditureButton.image = outputAdd
+    addExpenditureButton.pack(side=RIGHT, anchor=E, expand=True)

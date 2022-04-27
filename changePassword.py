@@ -4,6 +4,8 @@ from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import bcrypt
 import re
+import os
+from PIL import ImageTk, Image #required for images
 
 def passRequirements(screen):
     passGUI = Toplevel(screen)
@@ -59,10 +61,11 @@ def checkPassword(passwordGUI, username, password, p2):
         passwordGUI.withdraw()
 
 def changePassword(screen, username):
+    from PIL import ImageTk, Image #required for images
     global passwordGUI
     passwordGUI = Toplevel(screen)
     passwordGUI.title("Change Password - Settings")
-    passwordGUI.geometry("428x200")
+    passwordGUI.geometry("428x230")
     passwordGUI.configure(bg="#C0392B")
 
     #Change Password Title
@@ -80,9 +83,22 @@ def changePassword(screen, username):
     Label(passwordGUI, text="Please enter your new password again: ", bg="#C0392B", wraplengt=400).pack()
     Entry(passwordGUI, textvariable=pass2, width = 30, show='*', bg='white', fg='black').pack()
 
-    Button(passwordGUI, text='Password Requirements', bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                        command=lambda: passRequirements(passwordGUI)).pack()
+    #password requirements button
+    reqImg = Image.open("./Buttons/Register/button_password-requirements.png")
+    outputReq = ImageTk.PhotoImage(reqImg)
+    
+    reqButton = Button(passwordGUI, image = outputReq,
+                           command=lambda: passRequirements(passwordGUI))
 
-    #button
-    proceed = Button(passwordGUI, text="Proceed", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                         command=lambda: checkPassword(passwordGUI, username, pass1, pass2)).pack()
+    reqButton.image = outputReq
+    reqButton.pack()
+
+    #proceed button
+    proceedImg = Image.open("./Buttons/Settings/button_proceed.png").resize((100, 30))
+    outputProceed = ImageTk.PhotoImage(proceedImg)
+    
+    proceedButton = Button(passwordGUI, image = outputProceed,
+                           command=lambda: checkPassword(passwordGUI, username, pass1, pass2))
+
+    proceedButton.image = outputProceed
+    proceedButton.pack()

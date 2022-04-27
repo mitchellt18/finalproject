@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 from pymongo import MongoClient
 #local dataset modules
+from PIL import ImageTk, Image #required for images
 import re
 import os
 from datetime import date, datetime
@@ -74,6 +75,7 @@ def deleteFromDB(deleteGUI, offlineMode, username, delInt, df):
             messagebox.showwarning("Error", "Please Ensure to Input Integer Values ONLY")
 
 def deleteReminder(screen, offlineMode, username, df):
+    from PIL import ImageTk, Image #required for images
     #setup the GUI
     global deleteGUI
     deleteGUI = Toplevel(screen)
@@ -91,8 +93,14 @@ def deleteReminder(screen, offlineMode, username, df):
     delInt = StringVar()
     Entry(deleteGUI, textvariable = delInt, width = 10, bg='white', fg='black').pack()
 
-    #delete reminder
-    delButton = Button(deleteGUI, text="Delete", width = 15, height = 3, bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                       command = lambda: deleteFromDB(deleteGUI, offlineMode, username, delInt, df)).pack()
+    #add reminder
+    delImg = Image.open("./Buttons/Reminders/button_delete.png").resize((100, 30))
+    outputDel = ImageTk.PhotoImage(delImg)
+    
+    delButton = Button(deleteGUI, image = outputDel,
+                           command = lambda: deleteFromDB(deleteGUI, offlineMode, username, delInt, df))
+
+    delButton.image = outputDel
+    delButton.pack()
 
     

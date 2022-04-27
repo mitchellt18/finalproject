@@ -4,6 +4,8 @@ from tkinter import messagebox
 from pymongo.collection import ReturnDocument
 import bcrypt
 import re
+import os
+from PIL import ImageTk, Image #required for images
 
 #change password functions
 def checkAnswer(securityGUI, username, answer, a2):
@@ -35,6 +37,7 @@ def checkAnswer(securityGUI, username, answer, a2):
         securityGUI.withdraw()
 
 def changeAnswer(screen, username):
+    from PIL import ImageTk, Image #required for images
     global securityGUI
     securityGUI = Toplevel(screen)
     securityGUI.title("Change Security Answer - Settings")
@@ -56,6 +59,12 @@ def changeAnswer(screen, username):
     Label(securityGUI, text="Please re-enter your new Security Answer: ", bg="#C0392B", wraplengt=400).pack()
     Entry(securityGUI, textvariable=answer2, width = 30, bg='white', show = '*', fg='black').pack()
 
-    #button
-    proceed = Button(securityGUI, text="Proceed", bg="#C0392B", highlightbackground="#C0392B", fg = "white",
-                         command=lambda: checkAnswer(securityGUI, username, answer, answer2)).pack()
+    #proceed button
+    proceedImg = Image.open("./Buttons/Settings/button_proceed.png").resize((100, 30))
+    outputProceed = ImageTk.PhotoImage(proceedImg)
+    
+    proceedButton = Button(securityGUI, image = outputProceed,
+                           command=lambda: checkAnswer(securityGUI, username, answer, answer2))
+
+    proceedButton.image = outputProceed
+    proceedButton.pack()

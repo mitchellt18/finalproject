@@ -171,7 +171,10 @@ def mainExpenditurePage(screen, offlineMode, username, expenditureType):
             dates.insert(len(dates), "Overview")
         #show dates in dropdown box
         selection = StringVar()
-        w = OptionMenu(expenditureGUI, selection, *dates).pack()
+        w = OptionMenu(expenditureGUI, selection, *dates)
+        w.config(bg='#C0392B')
+        w["menu"].config(bg='#C0392B')
+        w.pack()
 
         #select button
         selectImg = Image.open("./Buttons/Expenditures/button_select-date.png")

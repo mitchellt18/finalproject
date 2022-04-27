@@ -165,8 +165,9 @@ def paymentReminders(screen, offlineMode, username):
     delButton.pack(side=RIGHT, anchor=E, expand=True)
 
     #if user has reminders in next 2 days, the bill names are outputted as an alert
-    if (not df_2days.empty):
-        urgentBills = df_2days['Bill'].values.tolist()
+    if (not empty):
+        if (not df_2days.empty):
+            urgentBills = df_2days['Bill'].values.tolist()
 
-        messagebox.showwarning("ATTENTION", "You Have Bills Due in the Next 2 Days! Ensure To Pay For The Following Bills: " + ', '.join(urgentBills)) #alerts users of near bills
+            messagebox.showwarning("ATTENTION", "You Have Bills Due in the Next 2 Days! Ensure To Pay For The Following Bills: " + ', '.join(urgentBills)) #alerts users of near bills
     

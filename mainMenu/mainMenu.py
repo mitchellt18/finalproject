@@ -9,7 +9,7 @@ import bcrypt
 #import py files
 from Settings.settings import *
 from Expenditures.mainExpenditurePage import *
-
+from Advice.advice import *
 from Reminders.paymentReminders import *
 
 #Verify Password (Settings)
@@ -130,8 +130,8 @@ def mainMenu(screen, offlineMode, username):
     opt3Img = Image.open("./Buttons/mainMenu/button_financial-recommendations.png")
     outputOpt3 = ImageTk.PhotoImage(opt3Img)
     
-    opt3Button = Button(mainMenuGUI, image = outputOpt3) 
-                    #command=lambda: monthlyBills(mainMenuGUI, offlineMode, username))
+    opt3Button = Button(mainMenuGUI, image = outputOpt3,
+                    command=lambda: advice(mainMenuGUI, offlineMode, username))
 
     opt3Button.image = outputOpt3
     opt3Button.pack()
